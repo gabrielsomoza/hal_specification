@@ -69,7 +69,8 @@ hal+json. Things to look for:
 * The multiple 'ea:admin' link objects contained in an array
 * Two properties of the orders collection; 'currentlyProcessing' and
   'shippedToday'
-* Embedded order resources with their own links and properties
+* Embedded order resources with their own links and properties.
+* The (optional) "_computed" property for each resource.
 * The compact URI (curie) named 'ea' for expanding the name of the
   links to their documentation URL
 
@@ -101,18 +102,23 @@ hal+json. Things to look for:
                 "ea:basket": { "href": "/baskets/98712" },
                 "ea:customer": { "href": "/customers/7809" }
             },
-            "total": 30.00,
             "currency": "USD",
-            "status": "shipped"
+            "status": "shipped",
+            "_computed": {
+                "total": 30.00
+            }
         }, {
             "_links": {
                 "self": { "href": "/orders/124" },
                 "ea:basket": { "href": "/baskets/97213" },
                 "ea:customer": { "href": "/customers/12369" }
             },
-            "total": 20.00,
             "currency": "USD",
-            "status": "processing"
+            "status": "processing",
+            ,
+            "_computed": {
+                "total": 20.00
+            }
         }]
     }
 }
@@ -127,7 +133,8 @@ Resources have:
 
 * Links (to URIs)
 * Embedded Resources (i.e. other resources contained within them)
-* State (your bog standard JSON or XML data)
+* Non-persistent State (i.e. a collection of "computed" properties). 
+* Persistent State (your bog standard JSON or XML data).
 
 ### Links
 Links have:
@@ -194,6 +201,21 @@ Represented via a 'self' link:
     }
 }
 ```
+
+Any other properties (except for the Reserved Properties) represent the resource's "persistent" state.
+
+#### Computed Properties
+An OPTIONAL, reserved "_computed" property represents the non-persistent state of the Resource. This helps separate what's persistent from what's not persistent, allowing API clients to easily understand what's expected on "write" operations (PUT, PATCH, POST).
+
+```javascript
+{
+    "_computed": {
+        "total": 20.0
+    }
+}
+```
+
+In this case API clients will know that "total" is a computed property and therefore will NOT be accepted as part of a "write" operation: it can only be computed through the use of business logic.
 
 ### Links
 Links must be contained directly within a resource:
